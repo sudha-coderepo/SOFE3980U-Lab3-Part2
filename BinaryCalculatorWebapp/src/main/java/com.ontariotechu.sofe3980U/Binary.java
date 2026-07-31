@@ -10,32 +10,39 @@ public class Binary
 	/**
 	* A constructor that generates a binary object.
 	*
-	* @param number a String of the binary values. It should conatins only zeros or ones with any length and order. otherwise, the value of "0" will be stored.   Trailing zeros will be excluded and empty string will be considered as zero.
+	* @param number a String of the binary values. It should contain only zeros or ones with any length and order. otherwise, the value of "0" will be stored.   Trailing zeros will be excluded and empty string will be considered as zero.
 	*/
-    public Binary(String number) {
+	public Binary(String number) {
+		if (number == null || number.isEmpty()) {
+			this.number = "0"; // Default to "0" for null or empty input
+			return;
+		}
+	
+		// Validate the binary string (only '0' or '1' allowed)
 		for (int i = 0; i < number.length(); i++) {
-			// check each character if it's not 0 or 1
-			char ch=number.charAt(i);
-			if(ch!='0' && ch!='1') {
-				number="0"; // if not store "0" and end the function
+			char ch = number.charAt(i);
+			if (ch != '0' && ch != '1') {
+				this.number = "0"; // Default to "0" for invalid input
 				return;
 			}
 		}
-		// remove any trailing zeros
+	
+		// Remove leading zeros
 		int beg;
 		for (beg = 0; beg < number.length(); beg++) {
-			if (number.charAt(beg)!='0')
+			if (number.charAt(beg) != '0') {
 				break;
+			}
 		}
-		//beg has the index of the first non zero digit in the number
-		this.number=number.substring(beg); // exclude the trailing zeros if any
+	
+		// If all digits are '0', ensure number is "0"
+		this.number = (beg == number.length()) ? "0" : number.substring(beg);
+	
 		// uncomment the following code
-		
-		if(this.number=="") { // replace empty strings with a single zero
-			this.number="0";
+		if (this.number.isEmpty()) { // replace empty strings with a single zero
+			this.number = "0";
 		}
-		
-    }
+	}
 	/**
 	* Return the binary value of the variable
 	*
@@ -79,4 +86,88 @@ public class Binary
 		return result;
 		
 	}
-}	
+
+	/**
+	* Bitwise logical OR of two binary variables.
+	*
+	* @param num1 The first operand
+	* @param num2 The second operand
+	* @return A binary variable with a value of <i>num1 OR num2</i>.
+	*/
+	public static Binary or(Binary num1, Binary num2)
+	{
+		StringBuilder result = new StringBuilder();
+		int ind1 = num1.number.length() - 1;
+		int ind2 = num2.number.length() - 1;
+		while (ind1 >= 0 || ind2 >= 0) {
+			char bit1 = (ind1 >= 0) ? num1.number.charAt(ind1) : '0';
+			char bit2 = (ind2 >= 0) ? num2.number.charAt(ind2) : '0';
+			if (bit1 == '1' || bit2 == '1') {
+				result.insert(0, '1');
+			} else {
+				result.insert(0, '0');
+			}
+			ind1--;
+			ind2--;
+		}
+		return new Binary(result.toString());
+	}
+
+	/**
+	* Bitwise logical AND of two binary variables.
+	*
+	* @param num1 The first operand
+	* @param num2 The second operand
+	* @return A binary variable with a value of <i>num1 AND num2</i>.
+	*/
+	public static Binary and(Binary num1, Binary num2)
+	{
+		StringBuilder result = new StringBuilder();
+		int ind1 = num1.number.length() - 1;
+		int ind2 = num2.number.length() - 1;
+		while (ind1 >= 0 || ind2 >= 0) {
+			char bit1 = (ind1 >= 0) ? num1.number.charAt(ind1) : '0';
+			char bit2 = (ind2 >= 0) ? num2.number.charAt(ind2) : '0';
+			if (bit1 == '1' && bit2 == '1') {
+				result.insert(0, '1');
+			} else {
+				result.insert(0, '0');
+			}
+			ind1--;
+			ind2--;
+		}
+		return new Binary(result.toString());
+	}
+
+	/**
+	* Multiplying two binary variables.
+	*
+	* @param num1 The multiplicand
+	* @param num2 The multiplier
+	* @return A binary variable with a value of <i>num1 * num2</i>.
+	*/
+	public static Binary multiply(Binary num1, Binary num2)
+	{
+		Binary result = new Binary("0");
+		String factor1 = num1.getValue();
+		String factor2 = num2.getValue();
+		
+		if (factor1.equals("0") || factor2.equals("0")) {
+			return result;
+		}
+		
+		int length2 = factor2.length();
+		for (int i = 0; i < length2; i++) {
+			char bit = factor2.charAt(length2 - 1 - i);
+			if (bit == '1') {
+				StringBuilder shifted = new StringBuilder(factor1);
+				for (int j = 0; j < i; j++) {
+					shifted.append('0');
+				}
+				Binary term = new Binary(shifted.toString());
+				result = Binary.add(result, term);
+			}
+		}
+		return result;
+	}
+}
